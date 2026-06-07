@@ -1,4 +1,4 @@
-name: finalproject
+name: lecture3_lasttask
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0+1
@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: ^3.15.2      # The base engine
+  firebase_auth: ^5.7.0      # The auth specific logic
+  google_fonts: ^8.0.2
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +21,15 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+#for pictures
+
+  fonts:
+    - family: MyCaveat
+      fonts:
+        - asset: assets/fonts/Caveat-VariableFont_wght.ttf
+    - family: MyDancingScript
+      fonts:
+        - asset: assets/fonts/DancingScript-VariableFont_wght.ttf
+
+
