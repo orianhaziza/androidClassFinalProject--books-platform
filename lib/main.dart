@@ -24,18 +24,20 @@ class AgesChoiceScreen extends StatefulWidget {
 }
 
 class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
-  final List<String> options = [
-    'ages 0-4', 'ages 4-8', 'ages 8-12',
-  ];
-  final List<IconData> icons = [
+  final List<String> ages = ['ages 0-4', 'ages 4-8', 'ages 8-12'];
+  final List<IconData> ageIcons = [
     Icons.child_friendly,
     Icons.child_care,
     Icons.school,
   ];
-  int? _selectedIndex;
+
+  // _selectedTile is 0..5 (or null).
+  // ageIndex    = _selectedTile! ~/ 2   → 0, 1, 2
+  // formatIndex = _selectedTile! % 2    → 0 = Word, 1 = PDF
+  int? _selectedTile;
 
   void _goToDetail() {
-    if (_selectedIndex == null) return;
+    if (_selectedTile == null) return;
     // TODO: navigate to the next screen once it exists
   }
 
@@ -60,44 +62,54 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
             children: [
               Column(
                 children: [
-                  // ─── Header: title on the left, Word + PDF badges on the right ───
+                  // ─── Centered title ───
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+                    child: Text(
+                      "Choose your child's age:",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'MyDancingScript',
+                        fontSize: 50,
+                        color: Color.fromARGB(255, 176, 39, 119),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  // ─── Column headers (W and PDF), each centered above its grid column ───
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Expanded(
-                          child: Text(
-                            "Choose your\nchild's age:",
-                            style: TextStyle(
-                              fontFamily: 'MyDancingScript',
-                              fontSize: 42,
-                              color: Color.fromARGB(255, 176, 39, 119),
-                              fontWeight: FontWeight.bold,
-                              height: 1.0,
+                        Expanded(
+                          child: Center(
+                            child: _formatBadge(
+                              label: 'W',
+                              icon: Icons.description,
+                              tint: const Color.fromARGB(255, 41, 87, 175),
                             ),
                           ),
                         ),
-                        _formatBadge(
-                          label: 'W',
-                          icon: Icons.description,
-                          tint: const Color.fromARGB(255, 41, 87, 175),
-                        ),
-                        const SizedBox(width: 10),
-                        _formatBadge(
-                          label: 'PDF',
-                          icon: Icons.picture_as_pdf,
-                          tint: const Color.fromARGB(255, 200, 50, 50),
+                        Expanded(
+                          child: Center(
+                            child: _formatBadge(
+                              label: 'PDF',
+                              icon: Icons.picture_as_pdf,
+                              tint: const Color.fromARGB(255, 200, 50, 50),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
 
-                  // ─── Age grid ───
+                  // ─── 6 tiles: 3 rows × 2 cols. Each row = one age. Left = Word, Right = PDF.
                   Expanded(
                     child: GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: options.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemCount: ages.length * 2, // 3 ages × 2 formats = 6
                       gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -106,11 +118,12 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                         childAspectRatio: 1.0,
                       ),
                       itemBuilder: (context, index) {
-                        final isSelected = _selectedIndex == index;
+                        final ageIdx = index ~/ 2;
+                        final isSelected = _selectedTile == index;
                         return InkWell(
                           onTap: () {
                             setState(() {
-                              _selectedIndex = index;
+                              _selectedTile = index;
                             });
                           },
                           borderRadius: BorderRadius.circular(16),
@@ -122,12 +135,12 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha:0.15),
                                   blurRadius: 12,
                                   offset: const Offset(4, 6),
                                 ),
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha:0.3),
                                   blurRadius: 10,
                                   offset: const Offset(-3, -3),
                                 ),
@@ -142,10 +155,10 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(icons[index], size: 40),
+                                Icon(ageIcons[ageIdx], size: 40),
                                 const SizedBox(height: 8),
                                 Text(
-                                  options[index],
+                                  ages[ageIdx],
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -167,10 +180,10 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                 bottom: 20,
                 right: 20,
                 child: AnimatedOpacity(
-                  opacity: _selectedIndex == null ? 0.0 : 1.0,
+                  opacity: _selectedTile == null ? 0.0 : 1.0,
                   duration: const Duration(milliseconds: 250),
                   child: IgnorePointer(
-                    ignoring: _selectedIndex == null,
+                    ignoring: _selectedTile == null,
                     child: FloatingActionButton(
                       onPressed: _goToDetail,
                       backgroundColor: const Color.fromARGB(255, 176, 39, 119),
@@ -190,21 +203,20 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
     );
   }
 
-  /// Small file-format badge used in the header (Word / PDF).
   Widget _formatBadge({
     required String label,
     required IconData icon,
     required Color tint,
   }) {
     return Container(
-      width: 50,
-      height: 55,
+      width: 90,
+      height: 95,
       decoration: BoxDecoration(
         color: tint,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha:0.15),
             blurRadius: 6,
             offset: const Offset(2, 3),
           ),
@@ -213,13 +225,13 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: 22),
+          Icon(icon, color: Colors.white, size: 42),
           const SizedBox(height: 2),
           Text(
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 10,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
             ),
