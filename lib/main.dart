@@ -171,7 +171,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 90),
+                  const SizedBox(height: 20),
                 ],
               ),
 
