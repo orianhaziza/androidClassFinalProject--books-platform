@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import '../main.dart'; // brings in the FileFormat enum
 
-// ─── REMOVED: void main() and the MaterialApp wrapper. ────────────────────
-// This screen is now pushed by Navigator from AgesChoiceScreen, so it's no
-// longer the app root. The app already has a MaterialApp at the top — wrapping
-// another one here would create a nested app and cause subtle bugs (lost
-// navigation context, missing theme, etc.).
-// Also removed the unused `dart:ui` import and the `keyboardHeight` variable.
+
 
 class DownloadsScreen extends StatefulWidget {
-  // ─── NEW: parameters coming from the previous screen ────────────────────
+  // parameters coming from the previous screen
   final int ageIndex;        // 0, 1, or 2
-  final String ageLabel;     // 'ages 0-4' etc.
+  final String ageLabel;     // 'ages 0-4' etc
   final FileFormat format;   // FileFormat.word or FileFormat.pdf
 
   const DownloadsScreen({
@@ -28,9 +23,9 @@ class DownloadsScreen extends StatefulWidget {
 enum DownloadState { notDownloaded, loading, downloaded } /// state per file
 
 class _DownloadsScreenState extends State<DownloadsScreen> {
-  // ─── CHANGED: files list is now built in initState based on the params,
-  //     not hard-coded. _mockFilesFor() picks the right mock list for the
-  //     chosen age + format. Swap it for a real API/DB call later.
+  // files list is built in initState based on the params.
+  // _mockFilesFor() picks the right mock list for the
+  //     chosen age + format
   late List<String> files;
   late List<DownloadState> _states;
 
@@ -41,9 +36,8 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     _states = List.filled(files.length, DownloadState.notDownloaded);
   }
 
-  // ─── NEW: mock data source. Replace with a real lookup later. ───────────
-  // The extension matches the chosen format so _fileIcon picks the right
-  // icon automatically — no extra logic needed.
+  // mock data source
+
   List<String> _mockFilesFor(int ageIndex, FileFormat format) {
     final ext = format == FileFormat.pdf ? 'pdf' : 'docx';
 
@@ -67,9 +61,8 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       extendBodyBehindAppBar: true,    // gradient flows behind the AppBar
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 250, 208, 216),
-        // ─── CHANGED: title now reflects the selection so the user knows
-        //     what they're looking at. Font size reduced from 35 → 26 because
-        //     the title is longer now.
+        // title reflects the selection so the user knows
+        //     what they're looking at
         title: Text(
           '${widget.ageLabel} — ${widget.format == FileFormat.pdf ? "PDF" : "Word"}',
           style: const TextStyle(
@@ -94,9 +87,9 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             stops: [0.0, 0.4, 0.9],
           ),
         ),
-        // ─── NEW: SafeArea + Column layout for the "sticky bottom button"
-        //     pattern. ListView lives inside Expanded so it eats all the
-        //     leftover vertical space; the button is a sibling below it
+        //SafeArea + Column layout for the "sticky bottom button pattern.
+        // ListView lives inside Expanded so it removes all the
+        //     leftover vertical space. the button is a sibling below it
         //     and stays at the bottom while the list scrolls.
         child: SafeArea(
           top: false, // AppBar already handles the top
@@ -122,11 +115,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                 ),
               ),
 
-              // ─── NEW: Upload Book button — matches the styled button
-              //     design we built before (glassy-pink, outlined, dancing
-              //     script font, elevated shadow). Uses Size(350, 55) since
-              //     it's alone on the row; on narrow screens Flutter will
-              //     shrink it to fit but it'll still try to stretch to 350.
+              // Upload Book button
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: OutlinedButton.icon(
@@ -160,7 +149,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     );
   }
 
-  // ─── NEW: mock upload action. Replace with file-picker logic later. ─────
+  //  mock upload action
   void _uploadBook() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -224,7 +213,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     final isDone = state == DownloadState.downloaded;
     return TextButton(
       onPressed: isDone
-          ? () { /* open file logic later */ }
+          ? () { /* open file logic  */ }
           : () => _download(index),
       style: TextButton.styleFrom(
         backgroundColor: Colors.lightBlue.shade50,

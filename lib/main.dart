@@ -4,10 +4,7 @@ void main() {
   runApp(const MyApp());
 }
 
-// ─── NEW: enum for the file format. ─────────────────────────────────────────
-// Using an enum (instead of a bool like `isPdf`) makes call sites read clearly
-// — `format: FileFormat.word` vs `isPdf: false` — and lets you use exhaustive
-// switch statements on the receiving side.
+// enum for the file format
 enum FileFormat { word, pdf }
 
 class MyApp extends StatelessWidget {
@@ -42,7 +39,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
   //   formatIndex = _selectedTile! % 2    → 0 = Word, 1 = PDF
   int? _selectedTile;
 
-  // ─── CHANGED: actually navigate, passing ageIndex + format. ───────────────
+
   void _goToDetail() {
     if (_selectedTile == null) return;
 
@@ -54,8 +51,8 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => DownloadsScreen(
-          ageIndex: ageIndex,        // 0, 1, or 2 — useful for list/map lookups
-          ageLabel: ages[ageIndex],  // 'ages 0-4' etc. — useful for display
+          ageIndex: ageIndex,        // 0, 1, or 2
+          ageLabel: ages[ageIndex],  //  for options display
           format: format,            // FileFormat.word or FileFormat.pdf
         ),
       ),
@@ -126,7 +123,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ─── 6 tiles: 3 rows × 2 cols. Each row = one age.
+                  // ─── 6 tiles. Each row = one age.
                   //     Left col = Word, Right col = PDF.
                   Expanded(
                     child: GridView.builder(
@@ -141,7 +138,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final ageIdx = index ~/ 2;
-                        final isPdf = index % 2 == 1; // NEW: per-tile format
+                        final isPdf = index % 2 == 1; // per-tile format
                         final isSelected = _selectedTile == index;
 
                         return InkWell(
@@ -176,10 +173,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                                 width: 2,
                               ),
                             ),
-                            // ─── NEW: Stack so we can put a small format
-                            //     badge in the top-right corner of each tile.
-                            //     This way each cell is self-describing even
-                            //     without looking at the column headers.
+
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
