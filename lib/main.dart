@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-
+import '../downloadScreen.dart';
 void main() {
   runApp(const MyApp());
 }
+
+// ─── NEW: enum for the file format. ─────────────────────────────────────────
+// Using an enum (instead of a bool like `isPdf`) makes call sites read clearly
+// — `format: FileFormat.word` vs `isPdf: false` — and lets you use exhaustive
+// switch statements on the receiving side.
+enum FileFormat { word, pdf }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -32,13 +38,28 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
   ];
 
   // _selectedTile is 0..5 (or null).
-  // ageIndex    = _selectedTile! ~/ 2   → 0, 1, 2
-  // formatIndex = _selectedTile! % 2    → 0 = Word, 1 = PDF
+  //   ageIndex    = _selectedTile! ~/ 2   → 0, 1, 2
+  //   formatIndex = _selectedTile! % 2    → 0 = Word, 1 = PDF
   int? _selectedTile;
 
+  // ─── CHANGED: actually navigate, passing ageIndex + format. ───────────────
   void _goToDetail() {
     if (_selectedTile == null) return;
-    // TODO: navigate to the next screen once it exists
+
+    final ageIndex = _selectedTile! ~/ 2;
+    final format =
+    _selectedTile! % 2 == 0 ? FileFormat.word : FileFormat.pdf;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DownloadsScreen(
+          ageIndex: ageIndex,        // 0, 1, or 2 — useful for list/map lookups
+          ageLabel: ages[ageIndex],  // 'ages 0-4' etc. — useful for display
+          format: format,            // FileFormat.word or FileFormat.pdf
+        ),
+      ),
+    );
   }
 
   @override
@@ -77,7 +98,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                     ),
                   ),
 
-                  // ─── Column headers (W and PDF), each centered above its grid column ───
+                  // ─── Column headers (W and PDF) above each grid column ───
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
@@ -105,7 +126,8 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ─── 6 tiles: 3 rows × 2 cols. Each row = one age. Left = Word, Right = PDF.
+                  // ─── 6 tiles: 3 rows × 2 cols. Each row = one age.
+                  //     Left col = Word, Right col = PDF.
                   Expanded(
                     child: GridView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -119,7 +141,9 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final ageIdx = index ~/ 2;
+                        final isPdf = index % 2 == 1; // NEW: per-tile format
                         final isSelected = _selectedTile == index;
+
                         return InkWell(
                           onTap: () {
                             setState(() {
@@ -135,12 +159,12 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white.withValues(alpha:0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                   blurRadius: 12,
                                   offset: const Offset(4, 6),
                                 ),
                                 BoxShadow(
-                                  color: Colors.grey.withValues(alpha:0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   offset: const Offset(-3, -3),
                                 ),
@@ -152,17 +176,27 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                                 width: 2,
                               ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            // ─── NEW: Stack so we can put a small format
+                            //     badge in the top-right corner of each tile.
+                            //     This way each cell is self-describing even
+                            //     without looking at the column headers.
+                            child: Stack(
+                              alignment: Alignment.center,
                               children: [
-                                Icon(ageIcons[ageIdx], size: 40),
-                                const SizedBox(height: 8),
-                                Text(
-                                  ages[ageIdx],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(ageIcons[ageIdx], size: 40),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      ages[ageIdx],
+                                      style: const TextStyle(
+
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -175,7 +209,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
                 ],
               ),
 
-              // ─── Forward FAB ───
+              // ─── Forward FAB — appears only once something is selected ───
               Positioned(
                 bottom: 20,
                 right: 20,
@@ -216,7 +250,7 @@ class _AgesChoiceScreenState extends State<AgesChoiceScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 6,
             offset: const Offset(2, 3),
           ),
